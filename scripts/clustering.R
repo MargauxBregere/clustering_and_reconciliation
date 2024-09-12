@@ -5,7 +5,7 @@
 # Define the number of clusters:
 k = 3  #(Reasonable elbow)
 
-data_clust = data_train %>% 
+data_clust = data_clust  %>% 
   dplyr::select(date, area, load) %>% 
   spread(key = 'area', value = 'load')
 
@@ -19,7 +19,9 @@ rownames(Sp) <- shpprov$Area_ID
 
 canada_stations <- rio::import("data/canada_stations.rds")
 canada_stations <- canada_stations[-c(10,28),] # 10 and 11 and 28 and 29 are almost the same
-
+stations <- readRDS('data/nearest_station.rds') %>% as.data.frame()
+colnames(stations) <- c('area','station')
+canada_stations <- canada_stations %>% dplyr::filter(STATION %in% stations$station)
 # Spatial distance based on geographical coordinates
 D1 <- as.matrix(dist(Sp)) # 42 areas in Canada
 data_clust <- data_clust[,c('date',paste0('AREA',shpprov$Area_ID))] # Data has same ordering as shape file
@@ -90,7 +92,7 @@ pdf("graphs/temporal_clustering.pdf", width = 10, height = 15)
 sp::plot(shpprov, 
      col = my_colors[as.integer(shpprov$temp_id)],#shpprov$st_id,   
      main = "Temporal clustering",
-     cex.main=2)
+     cex.main=3)
 points(canada_stations$LONGITUDE, 
        canada_stations$LATITUDE, 
        pch = 16,   # Change to a different plotting symbol if needed
