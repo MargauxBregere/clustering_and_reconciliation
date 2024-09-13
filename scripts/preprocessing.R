@@ -130,9 +130,9 @@ box_plot <- data_graph %>% ggplot(aes( x = area, y = load, colour = period)) + g
   xlab('Area number') + ylab('Electrical demand (MW)') +
   theme(
     legend.title = element_blank(),
-    axis.text = element_text(size = 12),
-    axis.title = element_text(size = 12),
-    legend.text = element_text(size = 12) ,
+    axis.text = element_text(size = 15),
+    axis.title = element_text(size = 15),
+    legend.text = element_text(size = 15) ,
     # legend.position = c(0.8,0.05),
     legend.direction = "horizontal",
     legend.position = 'bottom',
