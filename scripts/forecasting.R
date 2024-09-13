@@ -37,25 +37,19 @@ data_test <- data_test %>%
 data_clust_temp <- data_train %>% group_by(date,cluster_temp) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short, na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long, na.rm = TRUE), .groups = 'drop') %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE), .groups = 'drop') %>%
   rename(area = cluster_temp)
 
 data_clust_st <- data_train %>% group_by(date,cluster_st) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short , na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long , na.rm = TRUE), .groups = 'drop') %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE), .groups = 'drop') %>%
   rename(area = cluster_st)
 
 data_all <- data_train %>% group_by(date) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short , na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long , na.rm = TRUE)) %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),, .groups = 'drop') %>%
   mutate(area = 'ALL')
 
 data_train <- data_train %>% dplyr::select(-c(cluster_temp, cluster_st, station)) %>%
@@ -68,24 +62,18 @@ data_train <- data_train %>% dplyr::select(-c(cluster_temp, cluster_st, station)
 data_clust_temp <- data_calib %>% group_by(date,cluster_temp) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short, na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long, na.rm = TRUE), .groups = 'drop') %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE), .groups = 'drop') %>%
   rename(area = cluster_temp)
 
 data_clust_st <- data_calib %>% group_by(date,cluster_st) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short , na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long , na.rm = TRUE), .groups = 'drop') %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE), .groups = 'drop') %>%
   rename(area = cluster_st)
 data_all <- data_calib %>% group_by(date) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short , na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long , na.rm = TRUE)) %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE), .groups = 'drop') %>%
   mutate(area = 'ALL')
 data_calib <- data_calib %>% dplyr::select(-c(cluster_temp, cluster_st, station)) %>%
   bind_rows(data_clust_temp) %>%
@@ -97,25 +85,19 @@ data_calib <- data_calib %>% dplyr::select(-c(cluster_temp, cluster_st, station)
 data_clust_temp <- data_test %>% group_by(date,cluster_temp) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short, na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long, na.rm = TRUE), .groups = 'drop') %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE), .groups = 'drop') %>%
   rename(area = cluster_temp)
 
 data_clust_st <- data_test %>% group_by(date,cluster_st) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short , na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long , na.rm = TRUE), .groups = 'drop') %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE), .groups = 'drop') %>%
   rename(area = cluster_st)
 
 data_all <- data_test %>% group_by(date) %>%
   summarise(load = sum(load),
             temperature = mean(temperature, na.rm = TRUE),
-            temperature_smooth = mean(temperature_smooth, na.rm = TRUE),
-            temperature_smooth_short = mean(temperature_smooth_short , na.rm = TRUE),
-            temperature_smooth_long = mean(temperature_smooth_long , na.rm = TRUE)) %>%
+            temperature_smooth = mean(temperature_smooth, na.rm = TRUE), .groups = 'drop') %>%
   mutate(area = 'ALL')
 
 data_test <- data_test %>% dplyr::select(-c(cluster_temp, cluster_st, station)) %>%
@@ -132,21 +114,18 @@ levels = unique(data_train$area)
 data_train <- data_train %>% 
   mutate(hour = as.factor(lubridate::hour(date)),
          week_day = as.factor(lubridate::wday(date)),
-         week_end = lubridate::wday(date)> 5,
          covid = date >= as.POSIXct(strptime("2020-05-01 00:00:00", "%Y-%m-%d %H:%M:%S"))) %>%
   as.data.frame()
 
 data_calib <- data_calib %>% 
   mutate(hour = as.factor(lubridate::hour(date)),
          week_day = as.factor(lubridate::wday(date)),
-         week_end = lubridate::wday(date)> 5,
          covid = date >= as.POSIXct(strptime("2020-05-01 00:00:00", "%Y-%m-%d %H:%M:%S"))) %>%
   as.data.frame()
 
 data_test <- data_test %>% 
   mutate(hour = as.factor(lubridate::hour(date)),
          week_day = as.factor(lubridate::wday(date)),
-         week_end = lubridate::wday(date)> 5,
          covid = date >= as.POSIXct(strptime("2020-05-01 00:00:00", "%Y-%m-%d %H:%M:%S"))) %>%
   as.data.frame()
 

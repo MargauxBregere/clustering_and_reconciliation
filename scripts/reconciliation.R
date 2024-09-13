@@ -200,7 +200,7 @@ print(res)
 print(res_all)
 
 
-
+## graphs 
 for(l in c( 'AREA60', 'AREA36', 'ALL')){
   graph <- prev_MinT %>% dplyr::select(date, area, estimated_load, estimated_load_rec, reconciliation, load) %>% 
     rename(MinT = estimated_load_rec, AAload = load, ABestimated_load = estimated_load) %>% 

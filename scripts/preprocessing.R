@@ -51,13 +51,10 @@ exp_smooth <- function(vec, alpha){
   }
 }
 meteo_smooth <- meteo
-meteo_smooth_long <- meteo
-meteo_smooth_short <- meteo
 
+alpha = 0.98
 for(s in 2:ncol(meteo)){
-  meteo_smooth[,s] <- exp_smooth(meteo[,s], alpha = 0.98)
-  meteo_smooth_long[,s] <- exp_smooth(meteo[,s], alpha = 0.999)
-  meteo_smooth_short[,s] <- exp_smooth(meteo[,s], alpha = 0.95)
+  meteo_smooth[,s] <- exp_smooth(meteo[,s], alpha = alpha )
 }
 
 
@@ -68,6 +65,7 @@ for(s in 2:ncol(data)){
   data[,s] <- zoo::na.approx(data[,s], na.rm = FALSE)
 }
 
+
 data <-  data %>%
   gather(-date, key = 'area', value = 'load') %>%
   left_join(stations, by = 'area') 
@@ -76,8 +74,79 @@ data <- data %>%
   left_join(
     meteo %>% gather(-date, key = 'station', value = 'temperature'), by = c('date', 'station')) %>%
   left_join(
-    meteo_smooth %>% gather(-date, key = 'station', value = 'temperature_smooth'), by = c('date', 'station'))%>%
-  left_join(
-    meteo_smooth_long %>% gather(-date, key = 'station', value = 'temperature_smooth_long'), by = c('date', 'station'))%>%
-  left_join(
-    meteo_smooth_short %>% gather(-date, key = 'station', value = 'temperature_smooth_short'), by = c('date', 'station'))
+    meteo_smooth %>% gather(-date, key = 'station', value = 'temperature_smooth'), by = c('date', 'station'))
+
+print(summary(data %>% filter(lubridate::year(date) > 2018)))
+print(paste0("Number of AREA: ", length(unique(data$area))))
+print(paste0("Number of weather stations: ", length(unique(data$station))))
+
+
+
+graph_temp <- data %>% filter(area  == 'AREA60') %>% filter(lubridate::year(date) == 2019) %>% 
+  dplyr::select(date, station, temperature, temperature_smooth) %>% 
+  gather(-c(date,station), key = 'type', value = 'temperature')
+ 
+
+g <- graph_temp %>% 
+  ggplot(aes(x = date, y = temperature, colour =  type)) + geom_line()  + 
+  theme_classic() + 
+  xlab('') + ylab('Temperature (°C)') +
+  theme(
+    # axis.title.x=element_blank(),
+    # axis.text.x=element_blank(),
+    # axis.ticks.x=element_blank(),
+    legend.title = element_blank(),
+    axis.text = element_text(size = 15),
+    axis.title = element_text(size = 15),
+    legend.text = element_text(size = 15) ,
+    # legend.position = c(0.8,0.05),
+    legend.direction = "horizontal",
+    legend.position = 'bottom',
+    #legend.justification = c("right", "bottom"),
+    #legend.box.just = "right",
+    #legend.margin = margin(6, 6, 6, 6),
+    plot.background = element_rect(fill = "transparent", colour = NA),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    legend.key = element_rect(colour = NA, fill = NA),
+    legend.background = element_rect(fill = "transparent")) +
+  scale_color_manual(values = my_colors,
+                     labels = c("Observed temperature", "Smoothed temperature")) 
+
+pdf(paste0("graphs/temperature",unique(graph_temp$station),"_2019.pdf"), width = 10, height = 5) 
+print(g)
+dev.off()
+
+data_graph <- data
+data_graph$period <- NA 
+data_graph$period[lubridate::year(data_graph$date) > 2018] <- '0Training data'
+data_graph$period[lubridate::year(data_graph$date) > 2020] <- '1Calibration data'
+data_graph$period[lubridate::year(data_graph$date) > 2021] <- '2Testing data'
+
+data_graph$area <- stringr::str_remove(data_graph$area, "AREA")
+data_graph <- data_graph %>% na.omit()
+box_plot <- data_graph %>% ggplot(aes( x = area, y = load, colour = period)) + geom_boxplot() + 
+  theme_classic() + 
+  xlab('Area number') + ylab('Electrical demand (MW)') +
+  theme(
+    legend.title = element_blank(),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12),
+    legend.text = element_text(size = 12) ,
+    # legend.position = c(0.8,0.05),
+    legend.direction = "horizontal",
+    legend.position = 'bottom',
+    #legend.justification = c("right", "bottom"),
+    #legend.box.just = "right",
+    #legend.margin = margin(6, 6, 6, 6),
+    plot.background = element_rect(fill = "transparent", colour = NA),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    legend.key = element_rect(colour = NA, fill = NA),
+    legend.background = element_rect(fill = "transparent")) +
+  scale_color_manual(values = my_colors,
+                     labels = c("Training data", "Calibration data", "Testing data")) 
+
+pdf(paste0("graphs/boxplot.pdf"), width = 15, height = 5) 
+print(box_plot)
+dev.off()
