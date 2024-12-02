@@ -36,7 +36,6 @@ my_colors = c('#003f5c','#dd5182','#ffa600','#ff6e54','#955196','#444e86')
 
 source('scripts/preprocessing.R')
 
-# TRAIN : from 01.01.2018 - 
 data_train <- data %>% filter(lubridate::year(date) < 2021) %>% filter(lubridate::year(date) > 2017)
 paste0("TRAIN DATA SET: from ", min(data_train$date), ' to ', max(data_train$date))
 
@@ -50,3 +49,4 @@ rm(data)
 source('scripts/clustering.R')
 source('scripts/forecasting.R')
 source('scripts/reconciliation.R')
+source('scripts/testing.R')
